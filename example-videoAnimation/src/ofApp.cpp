@@ -3,42 +3,44 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	// Set the desired frame rate
-	ofSetFrameRate(2000);
-	ofSetVerticalSync(false);
+	// Load and start the video
+	video.load(videoFile);
+	video.play();
+	video.setPaused(true);
 
-	// Load the picture that we want to paint and resize it by the specified amount
-	img.load(pictureFile);
-	imgWidth = round(img.getWidth() / sizeReductionFactor);
-	imgHeight = round(img.getHeight() / sizeReductionFactor);
-	img.resize(imgWidth, imgHeight);
+	// Select the image size
+	imgWidth = video.getWidth() / sizeReductionFactor;
+	imgHeight = video.getHeight() / sizeReductionFactor;
 
 	// Resize the application window
 	if (comparisonMode) {
 		ofSetWindowShape(2 * imgWidth, imgHeight);
-	} else if (debugMode) {
-		ofSetWindowShape(3 * imgWidth, imgHeight);
 	} else {
 		ofSetWindowShape(imgWidth, imgHeight);
 	}
 
 	// Initialize the oil painting simulator
-	simulator = ofxOilSimulator(useCanvasBuffer, true);
-	simulator.setImage(img, true);
+	simulator = ofxOilSimulator(false, false);
+
+	// Change some of the simulator default parameters
+	ofxOilSimulator::MAX_COLOR_DIFFERENCE = {60, 60, 60};
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	// Update the simulator if the painting is not finished
-	if (!simulator.isFinished()) {
-		simulator.update(paintStepByStep);
-	}
+	// Move the video to the next frame
+	video.setFrame(ofGetFrameNum() % video.getTotalNumFrames());
+	video.update();
 
-	// Update the window title
-	if (simulator.isFinished()) {
-		ofSetWindowTitle("Oil painting simulation ( finished )");
-	} else {
-		ofSetWindowTitle("Oil painting simulation ( frame rate: " + ofToString(round(ofGetFrameRate())) + " )");
+	// Save an image of the current frame
+	img.setFromPixels(video.getPixels());
+	img.resize(imgWidth, imgHeight);
+
+	// Obtain an oil paint of the current image
+	simulator.setImage(img, startWithCleanCanvas);
+
+	while (!simulator.isFinished()) {
+		simulator.update(false);
 	}
 }
 
@@ -49,9 +51,6 @@ void ofApp::draw() {
 
 	if (comparisonMode) {
 		simulator.drawImage(imgWidth, 0);
-	} else if (debugMode) {
-		simulator.drawVisitedPixels(imgWidth, 0);
-		simulator.drawSimilarColorPixels(2 * imgWidth, 0);
 	}
 }
 

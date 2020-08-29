@@ -19,20 +19,20 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-	// The path to the picture that we want to paint
-	string pictureFile = "picture.jpg";
-	// The size reduction factor between the input picture and the final painting
+	// The path to the video that we want to paint
+	// https://archive.org/details/0536_Westinghouse_Travelers_Choice_66_18_51_40_25
+	string videoFile = "westinghouse.mov";
+	// The size reduction factor between the input video and the final painting
 	float sizeReductionFactor = 1.0;
 	// Use a separate canvas buffer for color mixing (a bit slower)
-	bool useCanvasBuffer = true;
-	// Compare the oil paint simulation with the input picture
-	bool comparisonMode = false;
-	// Show additional debug images
-	bool debugMode = true;
-	// Paint the traces step by step, or in one go
-	bool paintStepByStep = true;
+	bool useCanvasBuffer = false;
+	// Paint each picture with a clean canvas
+	bool startWithCleanCanvas = false;
+	// Compare the oil paint simulation with the video picture
+	bool comparisonMode = true;
 
 	// Application variables
+	ofVideoPlayer video;
 	ofImage img;
 	int imgWidth;
 	int imgHeight;

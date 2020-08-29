@@ -3,42 +3,32 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	// Set the desired frame rate
-	ofSetFrameRate(2000);
-	ofSetVerticalSync(false);
-
-	// Load the picture that we want to paint and resize it by the specified amount
-	img.load(pictureFile);
-	imgWidth = round(img.getWidth() / sizeReductionFactor);
-	imgHeight = round(img.getHeight() / sizeReductionFactor);
-	img.resize(imgWidth, imgHeight);
+	// Start the webcam
+	webcam.setDeviceID(0);
+	webcam.setDesiredFrameRate(webcamFrameRate);
+	webcam.setup(webcamWidth, webcamHeight);
 
 	// Resize the application window
 	if (comparisonMode) {
-		ofSetWindowShape(2 * imgWidth, imgHeight);
-	} else if (debugMode) {
-		ofSetWindowShape(3 * imgWidth, imgHeight);
+		ofSetWindowShape(2 * webcamWidth, webcamHeight);
 	} else {
-		ofSetWindowShape(imgWidth, imgHeight);
+		ofSetWindowShape(webcamWidth, webcamHeight);
 	}
 
 	// Initialize the oil painting simulator
-	simulator = ofxOilSimulator(useCanvasBuffer, true);
-	simulator.setImage(img, true);
+	simulator = ofxOilSimulator(false, false);
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	// Update the simulator if the painting is not finished
-	if (!simulator.isFinished()) {
-		simulator.update(paintStepByStep);
-	}
+	// Update the webcam
+	webcam.update();
 
-	// Update the window title
-	if (simulator.isFinished()) {
-		ofSetWindowTitle("Oil painting simulation ( finished )");
-	} else {
-		ofSetWindowTitle("Oil painting simulation ( frame rate: " + ofToString(round(ofGetFrameRate())) + " )");
+	// Obtain an oil paint of the current webcam image
+	simulator.setImagePixels(webcam.getPixels(), startWithCleanCanvas);
+
+	while (!simulator.isFinished()) {
+		simulator.update(false);
 	}
 }
 
@@ -48,10 +38,7 @@ void ofApp::draw() {
 	simulator.drawCanvas(0, 0);
 
 	if (comparisonMode) {
-		simulator.drawImage(imgWidth, 0);
-	} else if (debugMode) {
-		simulator.drawVisitedPixels(imgWidth, 0);
-		simulator.drawSimilarColorPixels(2 * imgWidth, 0);
+		simulator.drawImage(webcamWidth, 0);
 	}
 }
 

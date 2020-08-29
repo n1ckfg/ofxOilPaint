@@ -19,14 +19,18 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-	ofColor backgroundColor;
-	ofFbo canvas;
-	ofPixels canvasPixels;
-	ofxOilBrush brush;
-	vector<ofColor> initialBristleColors;
-	vector<ofColor> currentBristleColors;
-	float alphaValue;
-	ofPolyline cursorPath;
-	glm::vec2 lastAddedPoint;
-	float nextPathLength;
+	// The webcam frame width to use
+	int webcamWidth = 320;
+	// The webcam frame height to use
+	int webcamHeight = 240;
+	// The webcam frame rate to use
+	int webcamFrameRate = 30;
+	// Paint each picture with a clean canvas
+	bool startWithCleanCanvas = false;
+	// Compare the oil paint simulation with the webcam picture
+	bool comparisonMode = true;
+
+	// Application variables
+	ofVideoGrabber webcam;
+	ofxOilSimulator simulator;
 };
